@@ -17,6 +17,9 @@ import java.util.Random;
 public class BrickerGameManager extends GameManager {
 
     /* Static constants */
+    public static final int BRICK_LAYER = Layer.STATIC_OBJECTS;
+
+    /* Static constant fields */
     private static final float BALL_SPEED = 200;
     private static final float BALL_DIMS = 20;
     private static final float PADDLE_WIDTH = 100;
@@ -24,11 +27,13 @@ public class BrickerGameManager extends GameManager {
     private static final float PADDLE_Y_OFFSET = 30;
     private static final float BORDER_WIDTH = 3;
     private static final float DEFAULT_BRICK_HEIGHT = 15;
+    private static final float BRICK_SPACING = 1.5f;
 
-    /* Constants */
-    private final float DEFAULT_NUM_OF_BRICK_ROWS;
-    private final float DEFAULT_NUM_OF_BRICK_IN_ROW;
+    /* Constants fields */
+    private final float NUM_OF_BRICK_ROWS;
+    private final float NUM_OF_BRICKS_IN_ROW;
     private final Vector2 windowDimensions;
+    private final float brickWidth;
 
     /* Fields */
 
@@ -47,15 +52,18 @@ public class BrickerGameManager extends GameManager {
         super(windowTitle, windowDimensions);
         this.windowDimensions = windowDimensions;
         if (numOfBrickRows == -1) {
-            DEFAULT_NUM_OF_BRICK_ROWS = 7;
+            NUM_OF_BRICK_ROWS = 7;
         } else {
-            DEFAULT_NUM_OF_BRICK_ROWS = numOfBrickRows;
+            NUM_OF_BRICK_ROWS = numOfBrickRows;
         }
         if (numOfBrickInRow == -1) {
-            DEFAULT_NUM_OF_BRICK_IN_ROW = 8;
+            NUM_OF_BRICKS_IN_ROW = 8;
         } else {
-            DEFAULT_NUM_OF_BRICK_IN_ROW = numOfBrickInRow;
+            NUM_OF_BRICKS_IN_ROW = numOfBrickInRow;
         }
+        brickWidth = (
+                (windowDimensions.x() - (NUM_OF_BRICKS_IN_ROW - 1) * BRICK_SPACING) / NUM_OF_BRICKS_IN_ROW
+        );
     }
 
     /* Methods */
@@ -131,19 +139,33 @@ public class BrickerGameManager extends GameManager {
     /**
      * Create a brick GameObject.
      * @param brickImage The image to use for the brick.
+     * @param brickWidth The width of the brick.
+     * @param i The row of the brick.
+     * @param j The column of the brick.
      */
-    private void createBrick(Renderable brickImage) {
+    private void createBrick(Renderable brickImage, float brickWidth, int i, int j) {
+        float x = j * (brickWidth + BRICK_SPACING);
+        float y = i * (DEFAULT_BRICK_HEIGHT + BRICK_SPACING);
         Brick brick = new Brick(
-                Vector2.ZERO,
-                new Vector2(windowDimensions.x(), DEFAULT_BRICK_HEIGHT),
+                Vector2.of(x, y),
+                new Vector2(brickWidth, DEFAULT_BRICK_HEIGHT),
                 brickImage,
                 new BasicCollisionStrategy(this)
         );
-        gameObjects().addGameObject(brick);
+        gameObjects().addGameObject(brick, BRICK_LAYER);
     }
 
+    /**
+     * Create the bricks for the game.
+     * @param imageReader The image reader to use.
+     */
     private void createBricks(ImageReader imageReader) {
         Renderable brickImage = imageReader.readImage("assets/brick.png", true);
+        for (int i = 0; i < NUM_OF_BRICK_ROWS; i++) {
+            for (int j = 0; j < NUM_OF_BRICKS_IN_ROW; j++) {
+                createBrick(brickImage, brickWidth, i, j);
+            }
+        }
     }
 
     @Override
@@ -167,14 +189,23 @@ public class BrickerGameManager extends GameManager {
     /**
      * Remove a GameObject from the game.
      * @param gameObject The GameObject to remove.
+     * @param layer The layer to remove the GameObject from.
      */
-    public void removeGameObject(GameObject gameObject) {
-        gameObjects().removeGameObject(gameObject);
+    public void removeGameObject(GameObject gameObject, int layer) {
+        gameObjects().removeGameObject(gameObject, layer);
     }
 
     public static void main(String[] args) {
+        float numOfBrickRows = -1;
+        float numOfBrickInRow = -1;
+        if (args.length == 2) {
+            numOfBrickInRow = Float.parseFloat(args[0]);
+            numOfBrickRows = Float.parseFloat(args[1]);
+        } else if (args.length == 1) {
+            numOfBrickInRow = Float.parseFloat(args[0]);
+        }
         BrickerGameManager gameManager = new BrickerGameManager(
-                "Bricker", new Vector2(700, 500), -1, -1
+                "Bricker", new Vector2(700, 500), numOfBrickRows, numOfBrickInRow
         );
         gameManager.run();
     }
