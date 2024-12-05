@@ -61,6 +61,9 @@ public class BrickerGameManager extends GameManager {
         } else {
             NUM_OF_BRICKS_IN_ROW = numOfBrickInRow;
         }
+        /* Calculate the width of the bricks based on the number of bricks in a row,
+         * the brick spacing and the window dimensions.
+         */
         brickWidth = (
                 (windowDimensions.x() - (NUM_OF_BRICKS_IN_ROW - 1) * BRICK_SPACING) / NUM_OF_BRICKS_IN_ROW
         );
