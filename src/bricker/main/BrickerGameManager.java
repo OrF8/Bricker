@@ -1,21 +1,17 @@
 package bricker.main;
 
 import bricker.brick_strategies.BasicCollisionStrategy;
-import bricker.gameObjects.Brick;
-import bricker.gameObjects.GameObjects;
-import bricker.gameObjects.Paddle;
+import bricker.gameObjects.*;
 import danogl.GameManager;
 import danogl.GameObject;
 import danogl.collisions.Layer;
 import danogl.components.CoordinateSpace;
 import danogl.gui.*;
+import danogl.gui.rendering.ImageRenderable;
 import danogl.gui.rendering.Renderable;
-import danogl.gui.rendering.TextRenderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
-import bricker.gameObjects.Ball;
 
-import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.Random;
 
@@ -43,22 +39,23 @@ public class BrickerGameManager extends GameManager {
     private static final int DEFAULT_NUM_OF_LIVES = 3; /* The number of lives the user has */
     /* The factor to divide the window dimensions by to center */
     private static final int DIV_FACTOR_TO_CENTER = 2;
-    private static final float HEART_DIMS = 15; /* The dimensions of a heart (HEART_DIMS x HEART_DIMES)*/
-    private static final float HEART_Y_OFFSET = 20; /* The y offset of the heart */
-    private static final float HEART_X_OFFSET = 0.04f; /* The x offset of the heart */
-    private static final float HEART_BORDER_OFFSET = 30; /* The border offset of the heart */
-    /* The y offset of the numeric representation of the lives */
-    private static final float NUMERIC_Y_OFFSET = 27;
-    private static final float NUMERIC_DIMS = 20; /* The dimensions of the numeric representation */
     private static final int DOUBLE_FACTOR = 2; /* The factor to double the value by */
     private static final float THREE_QUARTER_FACTOR = 0.75f; /* The factor to multiply by 0.75 */
+    private static final String PUCK_TAG = "Puck";
+    private static final String BALL_COLLISION_SOUND_PATH = "assets/blop.wav";
+    private static final String PUCK_IMAGE_PATH = "assets/mockBall.png";
+    private static final String PADDLE_IMAGE_PATH = "assets/paddle.png";
+    private static final String HEART_IMAGE_PATH = "assets/heart.png";
+    private static final String ADDITIONAL_HEART_TAG = "AdditionalHeart";
+    private static final String ADDITIONAL_PADDLE_TAG = "AdditionalPaddle";
 
     /* Constants fields */
     private final float brickWidth; /* The width of the bricks */
     private final Vector2 windowDimensions; /* The dimensions of the window */
+    private final PlayerLife playerLife; /* A renderer to visualize the player's life */
 
     /* Fields */
-    private Renderable heart; /* The heart image to show the user lives */
+    private Renderable heartImage; /* The heart image to show the user lives */
     private ImageReader imageReader; /* The image reader */
     private SoundReader soundReader; /* The sound reader */
     private UserInputListener inputListener; /* The input listener */
@@ -70,7 +67,9 @@ public class BrickerGameManager extends GameManager {
     private int lives; /* The number of lives the user has left */
     private Counter brickCounter; /* The counter for the bricks */
     private boolean[][] bricks; /* The bricks in the game */
-    private Sound ballCollisionSound;
+    private Sound ballCollisionSound; /* The sound to play when a collision occurs */
+    private Renderable puckImage; /* The image to use for the puck */
+    private ImageRenderable paddleImage; /* The image to use for the paddle */
 
     /* Constructor */
     /**
@@ -98,6 +97,7 @@ public class BrickerGameManager extends GameManager {
                 (windowDimensions.x() - DOUBLE_FACTOR * BORDER_WIDTH - (this.numOfBricksInRow - 1) *
                         BRICK_SPACING) / this.numOfBricksInRow
         );
+        this.playerLife = new PlayerLife(windowDimensions, heartImage, this);
         initializeBeforeGameInit();
     }
 
@@ -148,7 +148,6 @@ public class BrickerGameManager extends GameManager {
      */
     private void createBall() {
         Renderable ballImage = imageReader.readImage("assets/ball.png", true);
-        this.ballCollisionSound = soundReader.readSound("assets/blop.wav");
         Ball ball = new Ball(Vector2.ZERO, new Vector2(BALL_DIMS, BALL_DIMS), ballImage, ballCollisionSound);
         this.ball = ball;
         float ballVelY = BALL_SPEED;
@@ -167,10 +166,12 @@ public class BrickerGameManager extends GameManager {
     }
 
     /**
-     * Create the user paddle GameObject.
+     * TODO: add management for two paddles at most.
+     * TODO: REMEMBER - after 4 hits...
+     * Create a paddle GameObject.
+     * @param isUserPaddle Whether the paddle is the user's paddle or not.
      */
-    private void createUserPaddle() {
-        Renderable paddleImage = imageReader.readImage("assets/paddle.png", true);
+    private void createPaddle(boolean isUserPaddle) {
         Paddle paddle = new Paddle(
                 Vector2.ZERO,
                 Vector2.of(PADDLE_WIDTH, PADDLE_HEIGHT),
@@ -178,10 +179,24 @@ public class BrickerGameManager extends GameManager {
                 inputListener,
                 windowDimensions
         );
-        paddle.setCenter(Vector2.of(
-                windowDimensions.x() / DIV_FACTOR_TO_CENTER, windowDimensions.y() - PADDLE_Y_OFFSET)
-        );
+        if (isUserPaddle) {
+            paddle.setCenter(Vector2.of(
+                    windowDimensions.x() / DIV_FACTOR_TO_CENTER, windowDimensions.y() - PADDLE_Y_OFFSET)
+            );
+        } else {
+            paddle.setCenter(
+                    Vector2.of(
+                            windowDimensions.x() / DIV_FACTOR_TO_CENTER,
+                            windowDimensions.y() / DIV_FACTOR_TO_CENTER
+                    )
+            );
+            paddle.setTag(ADDITIONAL_PADDLE_TAG);
+        }
         gameObjects().addGameObject(paddle);
+    }
+
+    private void createUserPaddle() {
+        createPaddle(true);
     }
 
     /**
@@ -218,45 +233,11 @@ public class BrickerGameManager extends GameManager {
     }
 
     /**
-     * Initialize the game.
-     * @param imageReader Contains a single method: readImage, which reads an image from disk.
-     *                    See its documentation for help.
-     * @param soundReader Contains a single method: readSound, which reads a wav file from disk.
-     *                    See its documentation for help.
-     * @param inputListener Contains a single method: isKeyPressed, which returns whether
-     *                      a given key is currently pressed by the user or not.
-     *                      See its documentation for help.
-     * @param windowController Contains an array of helpful, self-explanatory methods concerning the window.
-     */
-    @Override
-    public void initializeGame(ImageReader imageReader, SoundReader soundReader,
-                               UserInputListener inputListener, WindowController windowController) {
-        super.initializeGame(imageReader, soundReader, inputListener, windowController);
-
-        this.imageReader = imageReader;
-        this.soundReader = soundReader;
-        this.inputListener = inputListener;
-        this.windowController = windowController;
-
-        this.heart = imageReader.readImage("assets/heart.png", true);
-
-        // windowController.setTargetFramerate(100);
-
-        /* Create essential game objects */
-        createBall();
-        createUserPaddle();
-        createBorders();
-        createBackground();
-        createBricks();
-        showLifeData();
-    }
-
-    /**
      * Show the life data on the window.
      */
     private void showLifeData() {
-        showHearts();
-        showNumeric();
+        playerLife.showNumeric(numOfLives);
+        playerLife.showHearts(numOfLives);
     }
 
     /**
@@ -266,47 +247,6 @@ public class BrickerGameManager extends GameManager {
      */
     private int userLives(float ballHeight) {
         return ballHeight > windowDimensions.y() ? --lives : lives;
-    }
-
-    /**
-     * Show numOfLives hearts on the window.
-     */
-    private void showHearts() {
-        for (int i = 0; i < numOfLives; i++) {
-            GameObject heartObject = new GameObject(
-                    Vector2.of(
-                            i * HEART_X_OFFSET * windowDimensions.y() + HEART_BORDER_OFFSET,
-                            windowDimensions.y() - HEART_Y_OFFSET
-                    ),
-                    Vector2.of(HEART_DIMS, HEART_DIMS),
-                    heart
-            );
-            gameObjects().addGameObject(heartObject, Layer.UI);
-        }
-    }
-
-    /**
-     * Show the numeric representation of the number of lives the user has left.
-     */
-    private void showNumeric() {
-        TextRenderable textRenderable = new TextRenderable(Integer.toString(numOfLives));
-        switch (numOfLives) {
-            case 1:
-                textRenderable.setColor(Color.RED);
-                break;
-            case 2:
-                textRenderable.setColor(Color.YELLOW);
-                break;
-            default:
-                textRenderable.setColor(Color.GREEN);
-                break;
-        }
-        GameObject textObject = new GameObject(
-                Vector2.of(HEART_BORDER_OFFSET - NUMERIC_DIMS, windowDimensions.y() - NUMERIC_Y_OFFSET),
-                Vector2.of(NUMERIC_DIMS, NUMERIC_DIMS),
-                textRenderable
-        );
-        gameObjects().addGameObject(textObject, Layer.UI);
     }
 
     /**
@@ -329,7 +269,6 @@ public class BrickerGameManager extends GameManager {
         } else if (inputListener.isKeyPressed(KeyEvent.VK_W)) {
             prompt = "You Win!";
         }
-        System.out.println(brickCounter.value());
         if (!prompt.isEmpty()) {
             prompt = prompt.concat(" Play again?");
             if (windowController.openYesNoDialog(prompt)) { // == true if the user wants to play again
@@ -337,6 +276,35 @@ public class BrickerGameManager extends GameManager {
                 windowController.resetGame();
             } else {
                 windowController.closeWindow();
+            }
+        }
+    }
+
+    /**
+     * TODO: look here
+     * Check if a puck is out of the window.
+     */
+    private void checkForPuckOut() {
+        for (GameObject gameObject : gameObjects()) {
+            if (gameObject.getTag().equals(PUCK_TAG)) {
+                Vector2 center = gameObject.getCenter();
+                if (center.y() > windowDimensions.y()) {
+                    removeGameObject(gameObject, Layer.DEFAULT);
+                }
+            }
+        }
+    }
+
+    /**
+     * Check if a heart is out of the window.
+     */
+    private void checkHeartOut() {
+        for (GameObject gameObject : gameObjects()) {
+            if (gameObject.getTag().equals(ADDITIONAL_HEART_TAG)) {
+                Vector2 center = gameObject.getCenter();
+                if (center.y() > windowDimensions.y()) {
+                    removeGameObject(gameObject, Layer.UI);
+                }
             }
         }
     }
@@ -350,6 +318,8 @@ public class BrickerGameManager extends GameManager {
     public void update(float deltaTime) {
         super.update(deltaTime);
         checkForGameEnd();
+        checkForPuckOut();
+        checkHeartOut();
     }
 
     /**
@@ -357,8 +327,8 @@ public class BrickerGameManager extends GameManager {
      * @param gameObject The GameObject to remove.
      * @param layer The layer to remove the GameObject from.
      */
-    private void removeGameObject(GameObject gameObject, int layer) {
-        gameObjects().removeGameObject(gameObject, layer);
+    private boolean removeGameObject(GameObject gameObject, int layer) {
+        return gameObjects().removeGameObject(gameObject, layer);
     }
 
     /**
@@ -368,21 +338,88 @@ public class BrickerGameManager extends GameManager {
      */
     public void removeGameObject(GameObject gameObject, GameObjects objType) {
         if (objType == GameObjects.BRICK) {
-            removeGameObject(gameObject, BRICK_LAYER);
-
-            /* Mark the brick as removed */
-            String tag = gameObject.getTag();
-            if (!tag.isEmpty()) {
+            boolean result = removeGameObject(gameObject, BRICK_LAYER);
+            if (result) {
+                brickCounter.decrement();
+                // Mark the brick as removed
+                String tag = gameObject.getTag();
                 String[] tagParts = tag.split(",");
                 int i = Integer.parseInt(tagParts[0]);
                 int j = Integer.parseInt(tagParts[1]);
                 bricks[i][j] = true;
             }
-
-            brickCounter.decrement();
         } else {
             removeGameObject(gameObject, Layer.DEFAULT);
         }
+    }
+
+    /**
+     * Add a GameObject to the game.
+     * @param gameObject The GameObject to add.
+     * @param layer The layer to add the GameObject to.
+     */
+    public void addGameObject(GameObject gameObject, int layer) {
+        gameObjects().addGameObject(gameObject, layer);
+    }
+
+    /**
+     * TODO: Write a method description and fix.
+     * @param brickCenter The center of the brick that was removed.
+     */
+    private void createPucks(Vector2 brickCenter) {
+        for (int i = 0; i < DOUBLE_FACTOR; i++) {
+            Ball puck = new Ball(
+                    Vector2.ZERO,
+                    Vector2.of (BALL_DIMS * THREE_QUARTER_FACTOR, BALL_DIMS * THREE_QUARTER_FACTOR),
+                    puckImage,
+                    ballCollisionSound
+            );
+            Random rand = new Random();
+            // Randomize the direction of the ball
+            double angle = rand.nextDouble() * Math.PI;
+            float velocityX = (float) Math.cos(angle) * BALL_SPEED;
+            float velocityY = (float) Math.sin(angle) * BALL_SPEED;
+            puck.setVelocity(Vector2.of(velocityX, velocityY));
+            puck.setCenter(brickCenter);
+            puck.setTag(PUCK_TAG);
+            gameObjects().addGameObject(puck);
+        }
+    }
+
+    /**
+     * Initialize the game.
+     * @param imageReader Contains a single method: readImage, which reads an image from disk.
+     *                    See its documentation for help.
+     * @param soundReader Contains a single method: readSound, which reads a wav file from disk.
+     *                    See its documentation for help.
+     * @param inputListener Contains a single method: isKeyPressed, which returns whether
+     *                      a given key is currently pressed by the user or not.
+     *                      See its documentation for help.
+     * @param windowController Contains an array of helpful, self-explanatory methods concerning the window.
+     */
+    @Override
+    public void initializeGame(ImageReader imageReader, SoundReader soundReader,
+                               UserInputListener inputListener, WindowController windowController) {
+        super.initializeGame(imageReader, soundReader, inputListener, windowController);
+
+        this.imageReader = imageReader;
+        this.inputListener = inputListener;
+        this.windowController = windowController;
+
+        this.ballCollisionSound = soundReader.readSound(BALL_COLLISION_SOUND_PATH);
+        this.puckImage = imageReader.readImage(PUCK_IMAGE_PATH, true);
+        this.paddleImage = imageReader.readImage(PADDLE_IMAGE_PATH, true);
+        this.heartImage = imageReader.readImage(HEART_IMAGE_PATH, true);
+
+        // windowController.setTargetFramerate(100);
+
+        /* Create essential game objects */
+        createBall();
+        createUserPaddle();
+        createBorders();
+        createBackground();
+        createBricks();
+        showLifeData();
     }
 
     /**
@@ -403,5 +440,4 @@ public class BrickerGameManager extends GameManager {
         );
         gameManager.run();
     }
-
 }
