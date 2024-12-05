@@ -4,9 +4,9 @@ package bricker.gameObjects;
  * Enum representing the different types of GameObjects in the game.
  */
 public enum GameObjects {
-    /** The paddle. */
+    /** A paddle. */
     PADDLE,
-    /** The ball. */
+    /** A ball. */
     BALL,
     /** A brick. */
     BRICK

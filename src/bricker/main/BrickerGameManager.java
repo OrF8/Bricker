@@ -51,6 +51,7 @@ public class BrickerGameManager extends GameManager {
     private static final float NUMERIC_Y_OFFSET = 27;
     private static final float NUMERIC_DIMS = 20; /* The dimensions of the numeric representation */
     private static final int DOUBLE_FACTOR = 2; /* The factor to double the value by */
+    private static final float THREE_QUARTER_FACTOR = 0.75f; /* The factor to multiply by 0.75 */
 
     /* Constants fields */
     private final float brickWidth; /* The width of the bricks */
@@ -69,6 +70,7 @@ public class BrickerGameManager extends GameManager {
     private int lives; /* The number of lives the user has left */
     private Counter brickCounter; /* The counter for the bricks */
     private boolean[][] bricks; /* The bricks in the game */
+    private Sound ballCollisionSound;
 
     /* Constructor */
     /**
@@ -146,8 +148,8 @@ public class BrickerGameManager extends GameManager {
      */
     private void createBall() {
         Renderable ballImage = imageReader.readImage("assets/ball.png", true);
-        Sound collisionSound = soundReader.readSound("assets/blop.wav");
-        Ball ball = new Ball(Vector2.ZERO, new Vector2(BALL_DIMS, BALL_DIMS), ballImage, collisionSound);
+        this.ballCollisionSound = soundReader.readSound("assets/blop.wav");
+        Ball ball = new Ball(Vector2.ZERO, new Vector2(BALL_DIMS, BALL_DIMS), ballImage, ballCollisionSound);
         this.ball = ball;
         float ballVelY = BALL_SPEED;
         float ballVelX =BALL_SPEED;
