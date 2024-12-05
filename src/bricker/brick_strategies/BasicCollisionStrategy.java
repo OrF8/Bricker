@@ -1,8 +1,12 @@
 package bricker.brick_strategies;
 
+import bricker.gameObjects.GameObjects;
 import bricker.main.BrickerGameManager;
 import danogl.GameObject;
 
+/**
+ * A basic collision strategy that removes a game object from the game when a collision is detected.
+ */
 public class BasicCollisionStrategy implements CollisionStrategy{
 
     private final BrickerGameManager gameManager;
@@ -15,9 +19,14 @@ public class BasicCollisionStrategy implements CollisionStrategy{
         this.gameManager = gameManager;
     }
 
+    /**
+     * Remove a game object from the game when a collision is detected.
+     * @param gameObject The GameObject that this strategy is associated with.
+     * @param other The GameObject that the collision was detected with.
+     */
     @Override
     public void onCollision(GameObject gameObject, GameObject other) {
-        gameManager.removeGameObject(gameObject, BrickerGameManager.BRICK_LAYER);
+        gameManager.removeGameObject(gameObject, GameObjects.BRICK);
     }
 
 }

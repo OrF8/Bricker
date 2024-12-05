@@ -2,6 +2,9 @@ package bricker.brick_strategies;
 
 import danogl.GameObject;
 
+/**
+ * Represents a strategy to handle collisions between GameObjects.
+ */
 public interface CollisionStrategy {
 
     /**

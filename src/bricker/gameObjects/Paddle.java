@@ -7,6 +7,9 @@ import danogl.util.Vector2;
 
 import java.awt.event.KeyEvent;
 
+/**
+ * Represents a paddle in the game.
+ */
 public class Paddle extends GameObject {
 
     private static final float MOVEMENT_SPEED = 300;
@@ -14,14 +17,15 @@ public class Paddle extends GameObject {
     private final Vector2 windowDimensions;
 
     /**
-     * Construct a new GameObject instance.
+     * Construct a new Paddle instance.
      *
-     * @param topLeftCorner Position of the object, in window coordinates (pixels).
+     * @param topLeftCorner Position of the paddle, in window coordinates (pixels).
      *                      Note that (0,0) is the top-left corner of the window.
      * @param dimensions    Width and height in window coordinates.
      * @param renderable    The renderable representing the object. Can be null, in which case
      *                      the GameObject will not be rendered.
      * @param inputListener The input listener to use.
+     * @param windowDimensions The dimensions of the window, in window coordinates.
      */
     public Paddle(
             Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable, UserInputListener inputListener,
@@ -32,6 +36,10 @@ public class Paddle extends GameObject {
         this.windowDimensions = windowDimensions;
     }
 
+    /**
+     * Updates the paddle's position and velocity based on user input.
+     * @param deltaTime The time elapsed, in seconds, since the last frame.
+     */
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
