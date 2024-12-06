@@ -1,6 +1,6 @@
 package bricker.brick_strategies;
 
-import bricker.gameObjects.GameObjects;
+import bricker.gameobjects.GameObjects;
 import bricker.main.BrickerGameManager;
 import danogl.GameObject;
 
