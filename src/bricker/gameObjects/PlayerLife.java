@@ -13,8 +13,8 @@ public class PlayerLife {
 
     /* Static constant fields */
     private static final float HEART_DIMS = 15; /* The dimensions of a heart (HEART_DIMS x HEART_DIMES)*/
-    private static final float HEART_Y_OFFSET = 20; /* The y offset of the heart */
-    private static final float HEART_X_OFFSET = 0.04f; /* The x offset of the heart */
+    private static final float HEART_Y_OFFSET = -10; /* The y offset of the heart */
+    private static final float HEART_X_OFFSET = 0.004f; /* The x offset of the heart */
     private static final float HEART_BORDER_OFFSET = 30; /* The border offset of the heart */
     /* The y offset of the numeric representation of the lives */
     private static final float NUMERIC_Y_OFFSET = 27;
