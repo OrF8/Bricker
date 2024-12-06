@@ -1,72 +1,56 @@
 package bricker.brick_strategies;
 
 import bricker.main.BrickerGameManager;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
-/**
- * A factory for creating collision strategies.
- */
 public class StrategyFactory {
 
+    private static final int MAX_STRATEGIES = 3;
+    private static final int TWO = 2;
+    private static final int THREE = 3;
+    private static final int FOUR = 4;
+    private static final int FIVE = 5;
+    private static final int TEN = 10;
     private static final Random rand = new Random();
 
-    /**
-     * Chooses randomly between the available collision strategies.
-     * @param gameManager The game manager to use.
-     * @param decoratedStrategy The strategy to decorate.
-     * @return The new collision strategy.
-     */
-    private static CollisionStrategy chooseStrategy(
-            BrickerGameManager gameManager, CollisionStrategy decoratedStrategy
-    ) {
-        CollisionStrategy strategy = null;
-        int choice = rand.nextInt(10);
-        switch (choice) {
-            case 0:
-                strategy = new PuckBallStrategy(decoratedStrategy, gameManager);
-                break;
-            case 1:
-                strategy = new AdditionalPaddleStrategy(decoratedStrategy, gameManager);
-                break;
-        }
-        return strategy;
-    }
-
-    /**
-     * Chooses randomly between the available collision strategies and creates a new instance of it.
-     * 0.5 probability for a regular brick, 1/10 for a puck brick, 1/10 for a turbo brick,
-     * 1/10 for a heart-giving brick, 1/10 for a double-behavior brick.
-     * @param gameManager The game manager to use.
-     * @param isDouble Whether the brick is a double-behavior brick.
-     * @return The new collision strategy.
-     */
-    private static CollisionStrategy createStrategy(BrickerGameManager gameManager, boolean isDouble) {
-        CollisionStrategy strategy = null;
-        if (isDouble) {
-            // TODO: Implement double-behavior brick strategy
-            int x = 0;
-            x++;
-        } else {
-            BasicCollisionStrategy basicCollisionStrategy = new BasicCollisionStrategy(gameManager);
-            if (rand.nextBoolean()) {
-                strategy = basicCollisionStrategy;
-            } else {
-                strategy = chooseStrategy(gameManager, basicCollisionStrategy);
-            }
-        }
-        return strategy;
-    }
-
-    /**
-     * Chooses randomly between the available collision strategies and creates a new instance of it.
-     * 0.5 probability for a regular brick, 1/10 for a puck brick, 1/10 for a turbo brick,
-     * 1/10 for a heart-giving brick, 1/10 for a double-behavior brick.
-     * @param gameManager The game manager to use.
-     * @return The new collision strategy.
-     */
     public static CollisionStrategy createStrategy(BrickerGameManager gameManager) {
-        return createStrategy(gameManager, false);
+        List<CollisionStrategy> strategies = new ArrayList<>();
+        CollisionStrategy strategy = new BasicCollisionStrategy(gameManager);
+        int choice = rand.nextInt(TEN);
+        strategy = switch (choice) {
+            case 0 -> new PuckBallStrategy(gameManager, strategy);
+            case 1 -> new AdditionalPaddleStrategy(gameManager, strategy);
+            case TWO -> new TurboStrategy(gameManager, strategy);
+            case THREE -> new HeartStrategy(gameManager, strategy);
+            case FOUR -> new DoubleBehaviorStrategy(
+                    createSpecialStrategy(gameManager, strategies),
+                    createSpecialStrategy(gameManager, strategies)
+            );
+            default -> strategy;
+        };
+        return strategy;
     }
 
+    public static CollisionStrategy createSpecialStrategy(
+            BrickerGameManager gameManager, List<CollisionStrategy> strategies
+    ) {
+        int choice = rand.nextInt(FIVE);
+        CollisionStrategy strategy = switch (choice) {
+            case 0 -> new PuckBallStrategy(gameManager, new BasicCollisionStrategy(gameManager));
+            case 1 -> new AdditionalPaddleStrategy(gameManager, new BasicCollisionStrategy(gameManager));
+            case TWO -> new TurboStrategy(gameManager, new BasicCollisionStrategy(gameManager));
+            case THREE -> new HeartStrategy(gameManager, new BasicCollisionStrategy(gameManager));
+            case FOUR -> new DoubleBehaviorStrategy(
+                    createSpecialStrategy(gameManager, strategies),
+                    createSpecialStrategy(gameManager, strategies)
+            );
+            default -> new BasicCollisionStrategy(gameManager);
+        };
+        if (choice != FOUR) {
+            strategies.add(strategy);
+        }
+        return strategies.size() > MAX_STRATEGIES ? null : strategy;
+    }
 }

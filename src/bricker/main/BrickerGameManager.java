@@ -23,6 +23,10 @@ public class BrickerGameManager extends GameManager {
 
     /** The tag for the game ball. */
     public static final String BALL_TAG = "Ball";
+    /** The tag for the user paddle. */
+    public static final String PADDLE_TAG = "Paddle";
+    /** The tag for the extra heart. */
+    public static final String EXTRA_HEART_TAG = "ExtraHeart";
 
     /* Static constant fields */
     private static final float BALL_SPEED = 200; /* The speed of the game ball */
@@ -45,7 +49,7 @@ public class BrickerGameManager extends GameManager {
     private static final int DIV_FACTOR_TO_CENTER = 2;
     private static final int DOUBLE_FACTOR = 2; /* The factor to double the value by */
     private static final float THREE_QUARTER_FACTOR = 0.75f; /* The factor to multiply by 0.75 */
-    public static final String PUCK_TAG = "BallPuck"; /* The tag for the puck ball */
+    private static final String PUCK_TAG = "BallPuck"; /* The tag for the puck ball */
     /* The path to the ball collision sound */
     private static final String BALL_COLLISION_SOUND_PATH = "assets/blop.wav";
     /* The path to the puck ball image */
@@ -61,6 +65,10 @@ public class BrickerGameManager extends GameManager {
     private static final String BALL_IMAGE_PATH = "assets/ball.png"; /* The path to the ball image */
     /* The path to the red ball image */
     private static final String RED_BALL_IMAGE_PATH = "assets/redBall.png";
+    /* The spacing between the bricks in the y direction */
+    private static final float BRICK_Y_SPACING = 1.04f;
+    private static final float EXTRA_HEART_SPEED = 100; /* The speed of the extra heart */
+    private static final int MAX_NUM_OF_LIVES = 4; /* The maximum number of lives the user can have */
 
     /* Constants fields */
     private final float brickWidth; /* The width of the bricks */
@@ -82,12 +90,16 @@ public class BrickerGameManager extends GameManager {
     private Sound ballCollisionSound; /* The sound to play when a collision occurs */
     private Renderable puckImage; /* The image to use for the puck */
     private ImageRenderable paddleImage; /* The image to use for the paddle */
-    private ArrayList<Ball> pucks; /* The counter for the pucks */
-    private AdditionalPaddle additionalPaddle;
+    private ArrayList<Ball> pucks; /* The puck balls */
+    private AdditionalPaddle additionalPaddle; /* The additional paddle */
     private Vector2 additionalPaddleTopLeftCorner; /* The top left corner of the additional paddle */
     private int additionalPaddleHitCount; /* The number of times the additional paddle has been hit */
     private Renderable ballImage; /* The image to use for the ball */
     private Renderable redBallImage; /* The image to use for the red ball */
+    private boolean turboMode; /* Whether the game is in turbo mode */
+    private Counter turboCollisions; /* The counter for the turbo collisions */
+    private int turboCollisionsCount; /* The number of turbo collisions */
+    private ArrayList<Heart> hearts; /* The extra hearts */
 
     /* Constructor */
     /**
@@ -124,14 +136,17 @@ public class BrickerGameManager extends GameManager {
      * Initializes important fields before the game is initialized.
      */
     private void initializeBeforeGameInit() {
+        turboMode = false;
         additionalPaddle = AdditionalPaddle.resetInstance();
         additionalPaddleTopLeftCorner = null;
         additionalPaddleHitCount = 0;
         pucks = new ArrayList<>();
+        hearts = new ArrayList<>();
         this.bricks = new boolean[this.numOfBrickRows][this.numOfBricksInRow];
         this.numOfLives = DEFAULT_NUM_OF_LIVES;
         this.lives = DEFAULT_NUM_OF_LIVES;
         this.brickCounter = new Counter(this.numOfBrickRows * this.numOfBricksInRow);
+        this.turboCollisions = new Counter();
     }
 
     /**
@@ -203,18 +218,19 @@ public class BrickerGameManager extends GameManager {
                         windowDimensions.y() - PADDLE_Y_OFFSET
                 )
             );
+        paddle.setTag(PADDLE_TAG);
         gameObjects().addGameObject(paddle);
     }
 
     /**
-     * Create a brick GameObject.
+     * Create a brick game object.
      * @param brickImage The image to use for the brick.
      * @param row The row of the brick.
      * @param col The column of the brick.
      */
     private void createBrick(Renderable brickImage, int row, int col) {
         float x = BORDER_WIDTH + col * (brickWidth + BRICK_SPACING);
-        float y = BORDER_WIDTH + row * (DEFAULT_BRICK_HEIGHT + BRICK_SPACING);
+        float y = BORDER_WIDTH + row * (DEFAULT_BRICK_HEIGHT + BRICK_SPACING) * BRICK_Y_SPACING;
         Brick brick = new Brick(
                 Vector2.of(x, y),
                 Vector2.of(brickWidth, DEFAULT_BRICK_HEIGHT),
@@ -251,7 +267,7 @@ public class BrickerGameManager extends GameManager {
     }
 
     /**
-     * Check if the user has lost a life and reset the game if he has.
+     * Check if the user has lost a life and resets the game if he has.
      */
     private void checkLostLife() {
         if (lives != numOfLives) {
@@ -263,12 +279,16 @@ public class BrickerGameManager extends GameManager {
                 additionalPaddleHitCount = 0;
                 additionalPaddleTopLeftCorner = null;
             }
+            if (turboMode) {
+                turboCollisions.reset();
+                turboCollisions.increaseBy(turboCollisionsCount - ball.getCollisionCounter());
+            }
             windowController.resetGame();
         }
     }
 
     /**
-     * Check if the user has lost.
+     * Return the number of lives the user has left.
      * @param ballHeight The height of the ball.
      * @return The number of lives the user has left.
      */
@@ -283,14 +303,13 @@ public class BrickerGameManager extends GameManager {
     private void checkForGameEnd() {
         float ballHeight = ball.getCenter().y();
         String prompt = "";
-        int userLives = userLives(ballHeight);
-        if (userLives == 0) { // User has no life left
+        if (userLives(ballHeight) == 0) { // User has no life left
             prompt = "You Lose!";
         }
         checkLostLife();
         if (brickCounter.value() == 0) { // User has won
             prompt = "You Win!";
-        } else if (inputListener.isKeyPressed(KeyEvent.VK_W)) {
+        } else if (inputListener.isKeyPressed(KeyEvent.VK_W)) { // User pressed W
             prompt = "You Win!";
         }
         if (!prompt.isEmpty()) {
@@ -305,22 +324,30 @@ public class BrickerGameManager extends GameManager {
     }
 
     /**
-     * Check if a puck ball is out of the game window.
+     * Check if a puck ball or an extra heart is out of the game window.
+     * If it is, remove it from the game.
      */
-    private void checkForPuckOut() {
+    private void checkForObjectsOut() {
         for (GameObject gameObject : gameObjects()) {
-            if (gameObject.getTag().equals(PUCK_TAG)) {
+            String tag = gameObject.getTag();
+            if (tag.equals(PUCK_TAG)) {
                 Vector2 center = gameObject.getCenter();
                 if (center.y() > windowDimensions.y()) {
                     removeGameObject(gameObject, Layer.DEFAULT);
                     pucks.remove(gameObject);
+                }
+            } else if (tag.equals(EXTRA_HEART_TAG)) {
+                Vector2 center = gameObject.getCenter();
+                if (center.y() > windowDimensions.y()) {
+                    removeGameObject(gameObject, Layer.DEFAULT);
+                    hearts.remove(gameObject);
                 }
             }
         }
     }
 
     /**
-     * Check if the additional has been hit four times.
+     * Check if the additional paddle has been hit four times.
      * If it has, remove it from the game.
      */
     private void checkAdditionalPaddle() {
@@ -339,8 +366,23 @@ public class BrickerGameManager extends GameManager {
     public void update(float deltaTime) {
         super.update(deltaTime);
         checkForGameEnd();
-        checkForPuckOut();
+        checkForObjectsOut();
         checkAdditionalPaddle();
+        checkTurboMode();
+    }
+
+    /**
+     * Check if the game is in turboMode.
+     * If it is, exit turboMode if ball has hit six objects in turbo mode.
+     */
+    private void checkTurboMode() {
+        if (turboMode) {
+            if (ball.getCollisionCounter() - turboCollisionsCount >= 6) {
+                turboMode = false;
+                ball.setVelocity(ball.getVelocity().mult(1 / TURBO_SPEED_FACTOR));
+                ball.renderer().setRenderable(ballImage);
+            }
+        }
     }
 
     /**
@@ -369,6 +411,8 @@ public class BrickerGameManager extends GameManager {
                 int j = Integer.parseInt(tagParts[1]);
                 bricks[i][j] = true;
             }
+        } else if (objType == GameObjects.LIFE) {
+            removeGameObject(gameObject, Layer.UI);
         } else {
             removeGameObject(gameObject, Layer.DEFAULT);
         }
@@ -413,6 +457,36 @@ public class BrickerGameManager extends GameManager {
     }
 
     /**
+     * Creates a falling heart when a brick is removed.
+     * The heart is falling from the center of the brick.
+     * The user must collect the heart to gain an additional life.
+     * @param brickCenter The center of the brick that was removed.
+     */
+    public void createFallingHeart(Vector2 brickCenter) {
+        Heart heart = new Heart(
+                brickCenter, Vector2.of(PlayerLife.HEART_DIMS, PlayerLife.HEART_DIMS), heartImage, this
+        );
+        heart.setTag(EXTRA_HEART_TAG);
+        heart.setVelocity(Vector2.DOWN.mult(EXTRA_HEART_SPEED));
+        hearts.add(heart);
+        gameObjects().addGameObject(heart);
+    }
+
+    /**
+     * Add a life to the user if the current number of lives is lower than the maximum number of lives.
+     * @param heart The heart that collided with the paddle.
+     */
+    public void addLife(Heart heart) {
+        if (numOfLives < MAX_NUM_OF_LIVES) {
+            numOfLives++;
+            lives++;
+            showLifeData();
+        }
+        removeGameObject(heart, Layer.DEFAULT);
+        hearts.remove(heart);
+    }
+
+    /**
      * Creates the additional paddle if and only if it does not already exist.
      * @param topLeftCorner The top left corner of the additional paddle.
      * @param hitCount The number of times the additional paddle has been hit.
@@ -445,6 +519,49 @@ public class BrickerGameManager extends GameManager {
     }
 
     /**
+     * Initialize the hearts.
+     */
+    private void initHearts() {
+        for (Heart heart : hearts) {
+            gameObjects().addGameObject(heart);
+        }
+    }
+
+    /**
+     * Switch to turbo mode.
+     */
+    public void switchToTurboMode() {
+        if (!turboMode) {
+            turboMode = true;
+            // +1 to disregard to current collision
+            turboCollisionsCount = ball.getCollisionCounter() + 1;
+            ball.setVelocity(ball.getVelocity().mult(TURBO_SPEED_FACTOR));
+            ball.renderer().setRenderable(redBallImage);
+        }
+    }
+
+    /**
+     * Initialize the additional paddle if it was rendered before the reset.
+     */
+    private void initAdditionalPaddle() {
+        if (additionalPaddleTopLeftCorner != null) { // If the additional paddle was rendered before the reset
+            additionalPaddle = AdditionalPaddle.resetInstance();
+            createAdditionalPaddle(additionalPaddleTopLeftCorner, additionalPaddleHitCount);
+        }
+    }
+
+    /**
+     * Initialize turbo mode if it was active before the reset.
+     */
+    private void initTurboMode() {
+        if (turboMode) {
+            ball.setVelocity(ball.getVelocity().mult(TURBO_SPEED_FACTOR));
+            ball.renderer().setRenderable(redBallImage);
+            turboCollisionsCount = turboCollisions.value();
+        }
+    }
+
+    /**
      * Initialize the game.
      * @param imageReader Contains a single method: readImage, which reads an image from disk.
      *                    See its documentation for help.
@@ -471,20 +588,17 @@ public class BrickerGameManager extends GameManager {
         this.ballImage = imageReader.readImage(BALL_IMAGE_PATH, true);
         this.redBallImage = imageReader.readImage(RED_BALL_IMAGE_PATH, true);
 
-        // windowController.setTargetFramerate(100);
-
         /* Create essential game objects */
         createBall();
         createUserPaddle();
         createBorders();
         createBackground();
+        initPucks();
+        initAdditionalPaddle();
+        initTurboMode();
+        initHearts();
         createBricks();
         showLifeData();
-        initPucks();
-        if (additionalPaddleTopLeftCorner != null) { // If the additional paddle was rendered before the reset
-            additionalPaddle = AdditionalPaddle.resetInstance();
-            createAdditionalPaddle(additionalPaddleTopLeftCorner, additionalPaddleHitCount);
-        }
     }
 
     /**
