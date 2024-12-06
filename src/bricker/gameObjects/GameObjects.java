@@ -9,5 +9,7 @@ public enum GameObjects {
     /** A ball. */
     BALL,
     /** A brick. */
-    BRICK
+    BRICK,
+    /** An additional paddle. */
+    ADDITIONAL_PADDLE,
 }
