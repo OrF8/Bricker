@@ -4,6 +4,9 @@ import bricker.main.BrickerGameManager;
 import danogl.GameObject;
 
 public class PuckBallStrategy extends CollisionStrategyDecorator {
+
+    private static final int NUM_OF_PUCKS_TO_CREATE_ON_COLLISION = 2;
+
     private final BrickerGameManager gameManager;
 
     public PuckBallStrategy(CollisionStrategy decoratedStrategy, BrickerGameManager gameManager) {
@@ -14,6 +17,6 @@ public class PuckBallStrategy extends CollisionStrategyDecorator {
     @Override
     public void onCollision(GameObject gameObject, GameObject other) {
         super.onCollision(gameObject, other);
-        gameManager.createPucks(gameObject.getCenter());
+        gameManager.createPucks(gameObject.getCenter(), NUM_OF_PUCKS_TO_CREATE_ON_COLLISION);
     }
 }
