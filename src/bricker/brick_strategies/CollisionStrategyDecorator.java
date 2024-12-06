@@ -6,6 +6,8 @@ import danogl.GameObject;
  * A decorator for collision strategies.
  */
 public abstract class CollisionStrategyDecorator implements CollisionStrategy {
+
+    /** The strategy that is being decorated. */
     protected final CollisionStrategy decoratedStrategy;
 
     /**
