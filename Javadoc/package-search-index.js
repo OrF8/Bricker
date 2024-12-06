@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"bricker.brick_strategies"},{"l":"bricker.gameobjects"},{"l":"bricker.main"}];updateSearchResults();
