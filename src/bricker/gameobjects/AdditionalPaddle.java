@@ -1,4 +1,4 @@
-package bricker.gameObjects;
+package bricker.gameobjects;
 
 import bricker.main.BrickerGameManager;
 import danogl.GameObject;

@@ -1,4 +1,4 @@
-package bricker.gameObjects;
+package bricker.gameobjects;
 
 /**
  * Enum representing different types of GameObjects in the game.

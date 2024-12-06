@@ -1,4 +1,4 @@
-package bricker.gameObjects;
+package bricker.gameobjects;
 
 import bricker.main.BrickerGameManager;
 import danogl.GameObject;
@@ -9,6 +9,9 @@ import danogl.util.Vector2;
 
 import java.awt.*;
 
+/**
+ * A class that represents the player's lives.
+ */
 public class PlayerLife {
 
     /** The dimensions of a heart (HEART_DIMS x HEART_DIMES)*/
@@ -44,6 +47,7 @@ public class PlayerLife {
 
     /**
      * Show the player's lives as hearts on the screen.
+     * @param numOfLives The number of lives to show.
      */
     public void showHearts(int numOfLives) {
         for (int i = 0; i < numOfLives; i++) {
@@ -62,6 +66,7 @@ public class PlayerLife {
 
     /**
      * Show the player's lives as a number on the screen.
+     * @param numOfLives The number of lives to show.
      */
     public void showNumeric(int numOfLives) {
         if (numericDisplay != null) {

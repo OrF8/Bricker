@@ -1,4 +1,4 @@
-package bricker.gameObjects;
+package bricker.gameobjects;
 
 import bricker.main.BrickerGameManager;
 import danogl.GameObject;
@@ -6,6 +6,9 @@ import danogl.collisions.Collision;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
 
+/**
+ * A heart GameObject that gives the user an extra life when collected.
+ */
 public class Heart extends GameObject {
 
     private final BrickerGameManager gameManager;

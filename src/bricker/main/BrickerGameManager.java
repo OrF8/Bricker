@@ -1,7 +1,7 @@
 package bricker.main;
 
 import bricker.brick_strategies.StrategyFactory;
-import bricker.gameObjects.*;
+import bricker.gameobjects.*;
 import danogl.GameManager;
 import danogl.GameObject;
 import danogl.collisions.Layer;
@@ -501,6 +501,10 @@ public class BrickerGameManager extends GameManager {
         gameObjects().addGameObject(additionalPaddle);
     }
 
+
+    /**
+     * Creates an additional paddle when a brick is removed.
+     */
     public void createAdditionalPaddle() {
         Vector2 topLeftCorner = Vector2.of(
                 windowDimensions.x() / DIV_FACTOR_TO_CENTER,
