@@ -306,7 +306,7 @@ public class BrickerGameManager extends GameManager {
     public void removeGameObject(GameObject gameObject, GameObjects objType) {
         if (objType == GameObjects.BRICK) {
             boolean result = removeGameObject(gameObject, BRICK_LAYER);
-            if (result) {
+            if (result) { // If the brick was removed
                 brickCounter.decrement();
                 // Mark the brick as removed
                 String tag = gameObject.getTag();
