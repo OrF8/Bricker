@@ -29,11 +29,9 @@ public class DoubleBehaviorStrategy implements CollisionStrategy {
     public void onCollision(GameObject thisObj, GameObject otherObj) {
         System.out.println("DoubleBehaviorStrategy.onCollision");
         if (strategy1 != null) {
-            System.out.println("Strategy1: " + strategy1.getClass().getSimpleName());
             strategy1.onCollision(thisObj, otherObj);
         }
         if (strategy2 != null) {
-            System.out.println("Strategy2: " + strategy2.getClass().getSimpleName());
             strategy2.onCollision(thisObj, otherObj);
         }
     }
