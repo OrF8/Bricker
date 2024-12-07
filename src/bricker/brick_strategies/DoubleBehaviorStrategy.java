@@ -1,5 +1,6 @@
 package bricker.brick_strategies;
 
+import bricker.main.BrickerGameManager;
 import danogl.GameObject;
 
 /**
@@ -9,13 +10,17 @@ public class DoubleBehaviorStrategy implements CollisionStrategy {
 
     private final CollisionStrategy strategy1;
     private final CollisionStrategy strategy2;
+    private final BasicCollisionStrategy basicStrategy;
 
     /**
      * Creates a new DoubleBehaviorStrategy with the given strategies.
      * @param strategy1 The first strategy.
      * @param strategy2 The second strategy.
      */
-    public DoubleBehaviorStrategy(CollisionStrategy strategy1, CollisionStrategy strategy2) {
+    public DoubleBehaviorStrategy(
+            BrickerGameManager gameManager, CollisionStrategy strategy1, CollisionStrategy strategy2
+    ) {
+        this.basicStrategy = new BasicCollisionStrategy(gameManager);
         this.strategy1 = strategy1;
         this.strategy2 = strategy2;
     }
@@ -27,13 +32,12 @@ public class DoubleBehaviorStrategy implements CollisionStrategy {
      */
     @Override
     public void onCollision(GameObject thisObj, GameObject otherObj) {
-        System.out.println("DoubleBehaviorStrategy.onCollision");
+        // Make sure to remove the object from the game if it is a brick in case of 3 doubleBehaviorStrategies
+        basicStrategy.onCollision(thisObj, otherObj);
         if (strategy1 != null) {
-            System.out.println("Strategy1: " + strategy1.getClass().getSimpleName());
             strategy1.onCollision(thisObj, otherObj);
         }
         if (strategy2 != null) {
-            System.out.println("Strategy2: " + strategy2.getClass().getSimpleName());
             strategy2.onCollision(thisObj, otherObj);
         }
     }

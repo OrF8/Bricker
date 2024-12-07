@@ -44,6 +44,7 @@ public class StrategyFactory {
             case TWO -> new TurboStrategy(gameManager, strategy);
             case THREE -> new HeartStrategy(gameManager, strategy);
             case FOUR -> new DoubleBehaviorStrategy(
+                    gameManager,
                     createSpecialStrategy(gameManager, strategies),
                     createSpecialStrategy(gameManager, strategies)
             );
@@ -68,6 +69,7 @@ public class StrategyFactory {
             case TWO -> new TurboStrategy(gameManager, new BasicCollisionStrategy(gameManager));
             case THREE -> new HeartStrategy(gameManager, new BasicCollisionStrategy(gameManager));
             case FOUR -> new DoubleBehaviorStrategy(
+                    gameManager,
                     createSpecialStrategy(gameManager, strategies),
                     createSpecialStrategy(gameManager, strategies)
             );
