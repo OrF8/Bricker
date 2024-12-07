@@ -27,7 +27,6 @@ public class DoubleBehaviorStrategy implements CollisionStrategy {
      */
     @Override
     public void onCollision(GameObject thisObj, GameObject otherObj) {
-        System.out.println("DoubleBehaviorStrategy.onCollision");
         if (strategy1 != null) {
             strategy1.onCollision(thisObj, otherObj);
         }
