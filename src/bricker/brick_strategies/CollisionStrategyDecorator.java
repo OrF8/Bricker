@@ -5,7 +5,7 @@ import danogl.GameObject;
 /**
  * A decorator for collision strategies.
  */
-public abstract class CollisionStrategyDecorator implements CollisionStrategy {
+abstract class CollisionStrategyDecorator implements CollisionStrategy {
 
     /** The strategy that is being decorated. */
     protected final CollisionStrategy decoratedStrategy;
@@ -14,7 +14,7 @@ public abstract class CollisionStrategyDecorator implements CollisionStrategy {
      * Creates a new collision strategy decorator.
      * @param decoratedStrategy The strategy to decorate.
      */
-    public CollisionStrategyDecorator(CollisionStrategy decoratedStrategy) {
+    CollisionStrategyDecorator(CollisionStrategy decoratedStrategy) {
         this.decoratedStrategy = decoratedStrategy;
     }
 

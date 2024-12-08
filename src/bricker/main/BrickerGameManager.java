@@ -73,7 +73,6 @@ public class BrickerGameManager extends GameManager {
     /* Constants fields */
     private final float brickWidth; /* The width of the bricks */
     private final Vector2 windowDimensions; /* The dimensions of the window */
-    private PlayerLife playerLife; /* A renderer to visualize the player's life */
 
     /* Fields */
     private Renderable heartImage; /* The heart image to show the user lives */
@@ -100,6 +99,7 @@ public class BrickerGameManager extends GameManager {
     private Counter turboCollisions; /* The counter for the turbo collisions */
     private int turboCollisionsCount; /* The number of turbo collisions */
     private ArrayList<Heart> hearts; /* The extra hearts */
+    private PlayerLife playerLife; /* A renderer to visualize the player's life */
 
     /* Constructor */
     /**
@@ -262,7 +262,7 @@ public class BrickerGameManager extends GameManager {
         if (playerLife == null) {
             playerLife = new PlayerLife(windowDimensions, heartImage, this);
         }
-        playerLife.showNumeric(numOfLives);
+        playerLife.showNumeric(numOfLives - 1);
         playerLife.showHearts(numOfLives);
     }
 

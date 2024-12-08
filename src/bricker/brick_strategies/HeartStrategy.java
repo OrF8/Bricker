@@ -6,7 +6,7 @@ import danogl.GameObject;
 /**
  * A strategy that gives the player an extra life on collision.
  */
-public class HeartStrategy extends CollisionStrategyDecorator{
+class HeartStrategy extends CollisionStrategyDecorator{
 
     private final BrickerGameManager gameManager; /* The game manager to use. */
 
@@ -15,7 +15,7 @@ public class HeartStrategy extends CollisionStrategyDecorator{
      * @param gameManager The game manager to use.
      * @param decoratedStrategy The strategy to decorate.
      */
-    public HeartStrategy(BrickerGameManager gameManager, CollisionStrategy decoratedStrategy) {
+    HeartStrategy(BrickerGameManager gameManager, CollisionStrategy decoratedStrategy) {
         super(decoratedStrategy);
         this.gameManager = gameManager;
     }

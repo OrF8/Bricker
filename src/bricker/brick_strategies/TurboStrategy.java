@@ -6,7 +6,7 @@ import danogl.GameObject;
 /**
  * A collision strategy that switches to turbo mode on collision.
  */
-public class TurboStrategy extends CollisionStrategyDecorator {
+class TurboStrategy extends CollisionStrategyDecorator {
 
     private final BrickerGameManager gameManager; /* The game manager to use. */
 
@@ -15,7 +15,7 @@ public class TurboStrategy extends CollisionStrategyDecorator {
      * @param gameManager The game manager to use.
      * @param decoratedStrategy The strategy to decorate.
      */
-    public TurboStrategy(BrickerGameManager gameManager, CollisionStrategy decoratedStrategy) {
+    TurboStrategy(BrickerGameManager gameManager, CollisionStrategy decoratedStrategy) {
         super(decoratedStrategy);
         this.gameManager = gameManager;
     }

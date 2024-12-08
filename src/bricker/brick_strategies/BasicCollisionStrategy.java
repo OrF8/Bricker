@@ -7,7 +7,7 @@ import danogl.GameObject;
 /**
  * A basic collision strategy that removes a game object from the game when a collision is detected.
  */
-public class BasicCollisionStrategy implements CollisionStrategy{
+class BasicCollisionStrategy implements CollisionStrategy{
 
     private final BrickerGameManager gameManager;
 
@@ -15,7 +15,7 @@ public class BasicCollisionStrategy implements CollisionStrategy{
      * Construct a new BasicCollisionStrategy instance.
      * @param gameManager The game manager that manages the game the collision strategy is used in.
      */
-    public BasicCollisionStrategy(BrickerGameManager gameManager) {
+    BasicCollisionStrategy(BrickerGameManager gameManager) {
         this.gameManager = gameManager;
     }
 

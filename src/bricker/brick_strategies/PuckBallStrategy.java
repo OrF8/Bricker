@@ -6,7 +6,7 @@ import danogl.GameObject;
 /**
  * A collision strategy that creates pucks on collision.
  */
-public class PuckBallStrategy extends CollisionStrategyDecorator {
+class PuckBallStrategy extends CollisionStrategyDecorator {
 
     /* The number of pucks to create on collision. */
     private static final int NUM_OF_PUCKS_TO_CREATE_ON_COLLISION = 2;
@@ -18,7 +18,7 @@ public class PuckBallStrategy extends CollisionStrategyDecorator {
      * @param gameManager The game manager to use.
      * @param decoratedStrategy The strategy to decorate.
      */
-    public PuckBallStrategy(BrickerGameManager gameManager, CollisionStrategy decoratedStrategy) {
+    PuckBallStrategy(BrickerGameManager gameManager, CollisionStrategy decoratedStrategy) {
         super(decoratedStrategy);
         this.gameManager = gameManager;
     }

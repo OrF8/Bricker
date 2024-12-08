@@ -6,7 +6,7 @@ import danogl.GameObject;
 /**
  * A strategy that combines two strategies.
  */
-public class DoubleBehaviorStrategy implements CollisionStrategy {
+class DoubleBehaviorStrategy implements CollisionStrategy {
 
     private final CollisionStrategy strategy1;
     private final CollisionStrategy strategy2;
@@ -17,7 +17,7 @@ public class DoubleBehaviorStrategy implements CollisionStrategy {
      * @param strategy1 The first strategy.
      * @param strategy2 The second strategy.
      */
-    public DoubleBehaviorStrategy(
+    DoubleBehaviorStrategy(
             BrickerGameManager gameManager, CollisionStrategy strategy1, CollisionStrategy strategy2
     ) {
         this.basicStrategy = new BasicCollisionStrategy(gameManager);

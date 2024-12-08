@@ -72,12 +72,12 @@ public class PlayerLife {
         if (numericDisplay != null) {
             gameManager.removeGameObject(numericDisplay, GameObjects.LIFE);
         }
-        TextRenderable textRenderable = new TextRenderable(Integer.toString(numOfLives));
+        TextRenderable textRenderable = new TextRenderable(Integer.toString(numOfLives + 1));
         switch (numOfLives) {
-            case 1:
+            case 0:
                 textRenderable.setColor(Color.RED);
                 break;
-            case 2:
+            case 1:
                 textRenderable.setColor(Color.YELLOW);
                 break;
             default:

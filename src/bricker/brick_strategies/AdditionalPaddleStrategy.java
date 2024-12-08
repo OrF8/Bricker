@@ -6,7 +6,7 @@ import danogl.GameObject;
 /**
  * A collision strategy that gives the player an additional paddle.
  */
-public class AdditionalPaddleStrategy extends CollisionStrategyDecorator {
+class AdditionalPaddleStrategy extends CollisionStrategyDecorator {
 
     private final BrickerGameManager gameManager;
 
@@ -15,7 +15,7 @@ public class AdditionalPaddleStrategy extends CollisionStrategyDecorator {
      * @param gameManager The game manager to use.
      * @param decoratedStrategy The strategy to decorate.
      */
-    public AdditionalPaddleStrategy(BrickerGameManager gameManager, CollisionStrategy decoratedStrategy) {
+    AdditionalPaddleStrategy(BrickerGameManager gameManager, CollisionStrategy decoratedStrategy) {
         super(decoratedStrategy);
         this.gameManager = gameManager;
     }
