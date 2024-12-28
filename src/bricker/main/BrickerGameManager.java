@@ -70,7 +70,7 @@ public class BrickerGameManager extends GameManager {
     private static final float EXTRA_HEART_SPEED = 100; /* The speed of the extra heart */
     private static final int MAX_NUM_OF_LIVES = 4; /* The maximum number of lives the user can have */
 
-    /* Constants fields */
+    /* Constant fields */
     private final float brickWidth; /* The width of the bricks */
     private final Vector2 windowDimensions; /* The dimensions of the window */
 
