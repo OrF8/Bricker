@@ -3,8 +3,8 @@ Bricker is a brick-breaking arcade-style game implemented in Java as part of the
 
 The project uses the DanoGameLab framework by Dan Nirel.
 
-# Fetures
-- Classic brick-breaking gameplaywith modern enhancements.
+# Features
+- Classic brick-breaking gameplay with modern enhancements.
 - Power-ups including extra paddles, multiple balls, and health bonuses.
 - Modular strategy pattern for extending game behavior dynamically.
 - Polished UI assets and sound effects to enhance the game experience.
