@@ -1,5 +1,7 @@
 # Bricker
-Bricker is a brick-breaking arcade-style game implemented in Java as part of the Object-Oriented Programming ([**67125**](https://shnaton.huji.ac.il/index.php/NewSyl/67125/2/2025/)) course at the Hebrew University of Jerusalem ([HUJI](https://en.huji.ac.il/)). The project uses the DanoGameLab framework by Dan Nirel.
+Bricker is a brick-breaking arcade-style game implemented in Java as part of the Object-Oriented Programming ([**67125**](https://shnaton.huji.ac.il/index.php/NewSyl/67125/2/2025/)) course at the Hebrew University of Jerusalem ([HUJI](https://en.huji.ac.il/)). 
+
+The project uses the DanoGameLab framework by Dan Nirel.
 
 # Fetures
 - Classic brick-breaking gameplaywith modern enhancements.
