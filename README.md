@@ -33,7 +33,7 @@ Or from your IDE, run the BrickerGameManager main class.
 ````
 Bricker/
 ├── assets/                 # Game assets (images, sounds, etc.)
-├── src/bricker/           # Source code
+├── src/bricker/            # Source code
 │   ├── brick_strategies/  # Collision and power-up strategies
 │   ├── gameobjects/       # Game objects (paddle, ball, bricks, etc.)
 │   ├── main/              # Game launcher and core logic
