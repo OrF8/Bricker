@@ -30,7 +30,7 @@ Run the game by executing the `BrickerGameManager.java` class:
 ````
 Or from your IDE, run the `BrickerGameManager` main class.
 
-# Project Structure
+# 📁 Project Structure
 ````
 Bricker/
 ├── assets/                 # Game assets (images, sounds, etc.)
@@ -42,9 +42,9 @@ Bricker/
 ├── LICENSE
 ````
 
-# Credits
+# ©️ Credits
 - This work was made using the [**DanoGameLab**](https://danthe1st.itch.io/danogamelab) library by Dan Nirel.
 - Sound and image assets licensed as listed in [````assets/Attribution.txt````](https://github.com/OrF8/Bricker/blob/main/assets/Attribution.txt)
 
-# License
+# 📄 License
 This project is licensed under the MIT License – see the [**LICENSE**](https://github.com/OrF8/Bricker/blob/main/LICENSE) file for details.
