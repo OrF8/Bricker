@@ -13,6 +13,7 @@ The project received a final grade of **95**.
 ## Prerequisites
 - ☕ Java 17+
 - Gradle or an IDE like IntelliJ IDEA or Eclipse
+- [DanoGameLab](https://danthe1st.itch.io/danogamelab) set as a dependency for the project.
 ## Steps
 1. Clone the repository:
    ````
