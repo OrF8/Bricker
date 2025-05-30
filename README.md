@@ -1,7 +1,7 @@
 # 🧱 Bricker
 Bricker is a brick-breaking arcade-style game implemented in Java as part of the Object-Oriented Programming ([**67125**](https://shnaton.huji.ac.il/index.php/NewSyl/67125/2/2025/)) course at the Hebrew University of Jerusalem ([HUJI](https://en.huji.ac.il/)). 
 
-The project received a final grade of **95**.
+> 🎓 Final Grade: **95**
 
 # ✨ Features
 - 🧱 Classic brick-breaking gameplay with modern enhancements.
